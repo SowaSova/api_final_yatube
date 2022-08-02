@@ -1,8 +1,7 @@
+from posts.models import Comment, Follow, Group, Post, User
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
-
-
-from posts.models import Comment, Post
+from rest_framework.validators import UniqueTogetherValidator
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -21,3 +20,39 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Comment
+
+
+class GroupSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Group
+        fields = ('title', 'slug', 'description')
+        read_only_fields = ('__all__', )
+
+
+class FollowSerializer(serializers.ModelSerializer):
+    user = serializers.SlugRelatedField(
+        read_only=True, slug_field='username',
+        default=serializers.CurrentUserDefault()
+    )
+    following = serializers.SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.all()
+    )
+
+    def validate_following(self, value):
+        if value == self.context['request'].user:
+            raise serializers.ValidationError(
+                'Нельзя подписываться на себя.'
+            )
+        return value
+
+    class Meta:
+        fields = '__all__'
+        model = Follow
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Follow.objects.all(),
+                fields=('user', 'following')
+            )
+        ]
