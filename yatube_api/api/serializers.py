@@ -5,54 +5,50 @@ from rest_framework.validators import UniqueTogetherValidator
 
 
 class PostSerializer(serializers.ModelSerializer):
-    author = SlugRelatedField(slug_field='username', read_only=True)
+    author = SlugRelatedField(slug_field="username", read_only=True)
 
     class Meta:
-        fields = '__all__'
+        fields = "__all__"
         model = Post
 
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        read_only=True, slug_field='username'
+        read_only=True, slug_field="username"
     )
 
     class Meta:
-        fields = '__all__'
+        fields = "__all__"
         model = Comment
 
 
 class GroupSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Group
-        fields = ('title', 'slug', 'description')
-        read_only_fields = ('__all__', )
+        fields = ("title", "slug", "description")
+        read_only_fields = ("__all__",)
 
 
 class FollowSerializer(serializers.ModelSerializer):
     user = serializers.SlugRelatedField(
-        read_only=True, slug_field='username',
-        default=serializers.CurrentUserDefault()
+        read_only=True,
+        slug_field="username",
+        default=serializers.CurrentUserDefault(),
     )
     following = serializers.SlugRelatedField(
-        slug_field='username',
-        queryset=User.objects.all()
+        slug_field="username", queryset=User.objects.all()
     )
 
     def validate_following(self, value):
-        if value == self.context['request'].user:
-            raise serializers.ValidationError(
-                'Нельзя подписываться на себя.'
-            )
+        if value == self.context["request"].user:
+            raise serializers.ValidationError("Нельзя подписываться на себя.")
         return value
 
     class Meta:
-        fields = '__all__'
+        fields = "__all__"
         model = Follow
         validators = [
             UniqueTogetherValidator(
-                queryset=Follow.objects.all(),
-                fields=('user', 'following')
+                queryset=Follow.objects.all(), fields=("user", "following")
             )
         ]

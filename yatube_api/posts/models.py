@@ -15,14 +15,17 @@ class Group(models.Model):
 
 class Post(models.Model):
     text = models.TextField()
-    pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
+    pub_date = models.DateTimeField("Дата публикации", auto_now_add=True)
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='posts')
-    image = models.ImageField(
-        upload_to='posts/', null=True, blank=True)
+        User, on_delete=models.CASCADE, related_name="posts"
+    )
+    image = models.ImageField(upload_to="posts/", null=True, blank=True)
     group = models.ForeignKey(
-        Group, on_delete=models.SET_NULL,
-        related_name='posts', blank=True, null=True
+        Group,
+        on_delete=models.SET_NULL,
+        related_name="posts",
+        blank=True,
+        null=True,
     )
 
     def __str__(self):
@@ -31,29 +34,33 @@ class Post(models.Model):
 
 class Comment(models.Model):
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='comments')
+        User, on_delete=models.CASCADE, related_name="comments"
+    )
     post = models.ForeignKey(
-        Post, on_delete=models.CASCADE, related_name='comments')
+        Post, on_delete=models.CASCADE, related_name="comments"
+    )
     text = models.TextField()
     created = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True)
+        "Дата добавления", auto_now_add=True, db_index=True
+    )
 
 
 class Follow(models.Model):
     user = models.ForeignKey(
         User,
-        related_name='follower',
+        related_name="follower",
         null=True,
         on_delete=models.CASCADE,
     )
     following = models.ForeignKey(
         User,
-        related_name='following',
-        verbose_name='Цель подписки',
+        related_name="following",
+        verbose_name="Цель подписки",
         on_delete=models.CASCADE,
         null=True,
     )
 
     class Meta:
         models.UniqueConstraint(
-            fields=['user', 'author'], name='unique_follow')
+            fields=["user", "author"], name="unique_follow"
+        )
